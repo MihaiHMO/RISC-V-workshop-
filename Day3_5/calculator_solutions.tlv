@@ -12,30 +12,15 @@
    m4_makerchip_module   // (Expanded in Nav-TLV pane.)
 \TLV
    $reset = *reset;
-
-   $val1[31:0] = >>1$out[31:0];
-   $val2[31:0] = $rand2[3:0];
    
-   $sum[31:0] = $val1[31:0] + $val2[31:0];
-   $diff[31:0] = $val1[31:0] - $val2[31:0];
-   $prod[31:0] = $val1[31:0] * $val2[31:0];
-   $quot[31:0] = $val1[31:0] / $val2[31:0];
-   
-   
-   $out[31:0] = 
-    $reset
-    ? 32'b0
-    :($op[0]
-       ? $sum[31:0]
-       : ($op[1]
-          ? $diff[31:0]
-          : ($op[2]
-            ? $prod[31:0]
-            : $quote[31:0]
-            )
-         )
-      );   
-   
+   |calc
+      
+      @1
+         $err1 = $illegal_op|| $bad_input
+      @3
+         $err2 = $over_flow || $err1
+      @6
+         $err3 = $div_by_zero || $err2
    // Assert these to end simulation (before Makerchip cycle limit).
    *passed = *cyc_cnt > 40;
    *failed = 1'b0;
