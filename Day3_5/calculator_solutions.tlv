@@ -13,24 +13,7 @@
 \TLV
    $reset = *reset;
 
-   $val1[31:0] = $rand1[3:0];
-   $val2[31:0] = $rand2[3:0];
-   $sum[31:0] = $val1[31:0] + $val2[31:0];
-   $diff[31:0] = $val1[31:0] - $val2[31:0];
-   $prod[31:0] = $val1[31:0] * $val2[31:0];
-   $quot[31:0] = $val1[31:0] / $val2[31:0];
-   
-   $out = 
-    $sel[0]
-       ? $sum[31:0]
-       : ($sel[1]
-          ? $diff[31:0]
-          : ($sel[2]
-            ? $prod[31:0]
-            : $quote[31:0]
-            )
-         );
-         
+   $num[31:0] = $reset ? 1 : (>>1$num + >>2$num);
 
    // Assert these to end simulation (before Makerchip cycle limit).
    *passed = *cyc_cnt > 40;
