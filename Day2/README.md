@@ -12,6 +12,17 @@ Repository for workshop day 3-5 : https://github.com/stevehoover/RISC-V_MYTH_Wor
   
 ## Day 1 - Introduction to RISC-V ISA and GNU compiler toolchain
 
+Building the enviromernt on the PC:
+https://github.com/kunalg123/riscv_workshop_collaterals/blob/master/run.sh
+```
+sudo apt-get install git vim -y
+sudo apt-get install autoconf automake autotools-dev curl libmpc-dev         libmpfr-dev libgmp-dev gawk build-essential bison flex texinfo     gperf libtool patchutils bc zlib1g-dev git libexpat1-dev gtkwave -y
+cd
+pwd=$PWD
+mkdir riscv_toolchain
+```
+
+
 ![](Day1/1-1.jpg)
 https://www.microcontrollertips.com/compilers-translators-interpreters-assemblers-faq/
 
@@ -24,6 +35,8 @@ There are several type of instruction:
 Other elements of instruction set is :
 - Application binary interface (ABI) - this are some registers 
 - Memory allocation and stack pointer
+
+All the instructions in risc-v are 32 bit (64bit is the register size for RV64)
 
 LAB:
 
@@ -57,15 +70,33 @@ unsigned long long int | 8 | %llu|0 - (2^64)-1 |
 long long int | 8 | %lld |  -(2^63) - (2^63)-1|
 
 LAB:
+
 ![](Day1/1-4.jpg)
 
 ## Day 2 - ABI and basic verification flow
 
 Application binary interface: 
 Different interfaces will be required in between different layers.
-![](Day122-1.jpg)
+
+![](Day2/2-1.jpg)
+
 ISA - is accessible to user and OS and is requested from application via system calls - here is ABI.
 ABI access the HW via registers, 32 Reg with 32 or 64 length (XLEN)
+
+Memory usage and base inetger instruction (RV64I):
+![](Day2/2-4.jpg)
+
+Name of ABI registers :
+![](Day2/2-5.jpg)
+
+Lab: 
+- Algo from sun1 to N, write the C and assamble variant .
+- simulating RiscV procesor ,  and loading the the hex file thgourh the test becnh 
+
+![](Day2/2-6.jpg)
+
+ we used the eaxmple of files from :
+
 
 
 
