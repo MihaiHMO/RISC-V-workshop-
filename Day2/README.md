@@ -95,9 +95,8 @@ Lab:
 
 ![](Day2/2-6.jpg)
 
- we used the eaxmple of files from :
-
-
+We used the eaxmple of files from :
+https://github.com/kunalg123/riscv_workshop_collaterals.git/
 
 
 
