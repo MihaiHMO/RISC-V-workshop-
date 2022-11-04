@@ -10,29 +10,40 @@
 \TLV
    
    |calc
-      @1
+      @0
          $reset = *reset;
-         $cnt = $reset ? 0 : (>>1$cnt + 1);
-         $valid = $cnt ; 
-         $valid_or_reset = $reset || $valid ;
+      @1
+         $valid = $reset ? 0 : (>>1$valid + 1);
+         $valid_or_reset = $reset || $valid;
          $val1[31:0] = >>2$out[31:0];
          $val2[31:0] = $rand2[3:0];
+      @2
          $op[1:0] = $rand[1:0];
       ?$valid_or_reset
          @1
             $sum[31:0] = $val1[31:0] + $val2[31:0];
             $diff[31:0] = $val1[31:0] - $val2[31:0];
             $prod[31:0] = $val1[31:0] * $val2[31:0];
-            $quot[31:0] = $val1[31:0] / $val2[31:0]; 
-
-         @2 
+            $quot[31:0] = $val1[31:0] / $val2[31:0];
+         @2
             $out[31:0] = $reset ? '0 :
               ($op == 2'b00) ? $sum :
-               ($op == 2'b01) ? $diff : 
+               ($op == 2'b01) ? $diff :
                 ($op == 2'b10) ? $prod : $quot;
-      
+            
+      // Macro instantiations for calculator visualization(disabled by default).
+      // Uncomment to enable visualisation, and also,
+      // NOTE: If visualization is enabled, $op must be defined to the proper width using the expression below.
+      //       (Any signals other than $rand1, $rand2 that are not explicitly assigned will result in strange errors.)
+      //       You can, however, safely use these specific random signals as described in the videos:
+      //  o $rand1[3:0]
+      //  o $rand2[3:0]
+      //  o $op[x:0]
+   //m4+cal_viz(@3) // Arg: Pipeline stage represented by viz, should be atleast equal to last stage of CALCULATOR logic.
+   
    // Assert these to end simulation (before Makerchip cycle limit).
    *passed = *cyc_cnt > 40;
    *failed = 1'b0;
+   
 \SV
    endmodule
