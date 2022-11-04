@@ -15,3 +15,7 @@ Calc and counetr pipiline	| https://makerchip.com/sandbox/0PNf4hZrx/0xGhLJr |
 simple calc and count	| https://makerchip.com/sandbox/0PNf4hZrx/0vghEW0# |
 Validity	| https://makerchip.com/sandbox/0PNf4hZrx/0k5hkk5 |
 Mem and recall	| https://myth3.makerchip.com/sandbox/02kfkh0Mk/0oYhDD6 |
+
+## Hierarchy :
+- used for reapeting a module  or library 
+- " Lexical re-enrtance" -  used to jump between diferent context  
