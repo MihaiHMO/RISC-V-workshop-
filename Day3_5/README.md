@@ -33,7 +33,7 @@ Basic elements:
 
 Lab: https://raw.githubusercontent.com/stevehoover/RISC-V_MYTH_Workshop/ecba3769fff373ef6b8f66b3347e8940c859792d/tlv_lib/risc-v_shell_lib.tlv
 
-![](4-1.png)
+![](Day4/4-1.PNG)
 
 The starting code makerchip sandbox contains a std infrastructure for TLV with some macro definitions .  Some elements are "m4" - is a macro preprocesor use to define a asambler . So you can insert test programs. 
  ``` *passed = *cyc_cnt > 40; ``` and ```   *failed = 1'b0;``` used to setup the numbers of clocks and a pass message
@@ -54,26 +54,26 @@ The incrementation must be done with 4 , because of the instructions are 32 bit 
 ### Decode Logic :
 Instr[1:0] are always zero  
 
-![](4-2.png)
+![](Day4/4-2.PNG)
 
 - Instruction type : To implement the set of instruction we use commands that check values with don't care values: ``` $is_i_instr = $ instr[6:2] ==? 5'b0000x || ...
 
-![](4-3.png)
+![](Day4/4-3.PNG)
 
 - Immediate value : it is 32 bita nd depends on the instruction type. This is formed by multiple 
 Concatenation in TLV: ``{ {21{$instr[31]}}, $instr[30:20]}``` - final vector is formed by 21 copies of instr[31] bit + instr[30:20] . 
 - The rest of instruction fields have fixed position independent of he type:
   
-![](4-4.png)
+![](Day4/4-4.PNG)
 
 - Decode particular instructions for used instructions:
 
-![](4-5.png)
+![](Day4/4-5.PNG)
 
 ### Register file and ALU:
 It is a macro ready done, capable for 2-read and 1-write.
 
-![](4-6.png) slide 21
+![](Day4/4-6.PNG) 
 
 - First we need to hook the read signals : ```rf_rd_enablex``` to ```rsx_valid``` , to enable the read and ```rsx``` fields to RF index ```rf_rd_index```. 
 - connect the read values to ALU , implemented ```addi``` and ```add```, and connect the output of the ALU to RF write signals
