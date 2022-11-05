@@ -31,6 +31,7 @@ Basic elements:
 - Data memory for data ( for store and load instructions )
 
 Lab: https://raw.githubusercontent.com/stevehoover/RISC-V_MYTH_Workshop/ecba3769fff373ef6b8f66b3347e8940c859792d/tlv_lib/risc-v_shell_lib.tlv
+![](4-1.png)
 The starting code makerchip sandbox contains a std infrastructure for TLV with some macro definitions .  Some elements are "m4" - is a macro preprocesor use to define a asambler . So you can insert test programs. 
  ``` *passed = *cyc_cnt > 40; ``` and ```   *failed = 1'b0;``` sued to setup the numbers of clocks and a pass message
 - there are some macros that are instantiating some elements (Instr mem, register file , data mem) :
@@ -46,6 +47,24 @@ Useful tips:
 The incrementation must be done with 4 , because of the instructions are 32 bit so we need 4 memory locations.
 - Fetch : we need to connect the IMem to the PC by ```$inem_rd_addr[M4_IMEN_INDEX_CNT-1:0]``` (wich is needs PC/4 values) , the data will come out from ```$inem_rd_data``` conencted to a Decoder input ```$instr[31:0]``` . The read from mem has also a n enable signal.
   based on memory size PC range must be define.
--  IRSBJU Decode Logic :
+### Decode Logic :
+Instr[1:0] are always zero  ![](4-2.png)
+- Instruction type : To implement the set of instruction we use commands that check values with don't care values: ``` $is_i_instr = $ instr[6:2] ==? 5'b0000x || ...
+![](4-3.png)
+- Immediate value : it is 32 bit nd depends on the instruction type. This is formed by multiple 
+Concatenation in TLV: ``{ {21{$instr[31]}}, $instr[30:20]}``` - final vector is formed by 21 copies of instr[31] bit + instr[30:20] . 
+- The rest of instruction fields have fixed position independent of he type: 
+![](4-4.png)
+- Decode particular instructions for used instructions:
+![](4-4.png) slide 13
 
- 
+### Register file and ALU:
+It is a macro ready done, capable for 2-read and 1-write.
+![](4-4.png) slide 16
+- First we need to hook the read signals : ```rf_rd_enablex``` to ```rsx_valid``` , to enable the read and ```rsx``` fields to RF index ```rf_rd_index```. 
+- connect the read values to ALU , implemented ```addi``` and ```add```, and connect the output of the ALU to RF write signals
+
+### Arrays (slide 21):
+-
+
+
