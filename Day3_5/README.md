@@ -51,7 +51,7 @@ The incrementation must be done with 4 , because of the instructions are 32 bit 
 Instr[1:0] are always zero  ![](4-2.png)
 - Instruction type : To implement the set of instruction we use commands that check values with don't care values: ``` $is_i_instr = $ instr[6:2] ==? 5'b0000x || ...
 ![](4-3.png)
-- Immediate value : it is 32 bit nd depends on the instruction type. This is formed by multiple 
+- Immediate value : it is 32 bita nd depends on the instruction type. This is formed by multiple 
 Concatenation in TLV: ``{ {21{$instr[31]}}, $instr[30:20]}``` - final vector is formed by 21 copies of instr[31] bit + instr[30:20] . 
 - The rest of instruction fields have fixed position independent of he type: 
 ![](4-4.png)
@@ -60,11 +60,16 @@ Concatenation in TLV: ``{ {21{$instr[31]}}, $instr[30:20]}``` - final vector is 
 
 ### Register file and ALU:
 It is a macro ready done, capable for 2-read and 1-write.
-![](4-4.png) slide 16
+![](4-4.png) slide 21
 - First we need to hook the read signals : ```rf_rd_enablex``` to ```rsx_valid``` , to enable the read and ```rsx``` fields to RF index ```rf_rd_index```. 
 - connect the read values to ALU , implemented ```addi``` and ```add```, and connect the output of the ALU to RF write signals
+- the read usually is done for values written a previous step . 
+insert array details!!! and slide 22.
 
-### Arrays (slide 21):
--
+### Branches
+- Compute when a branch (instructions "bxxx") is needed, and where to branch ( PC of the branch and the immediate value of the instr). 
+The branch target PC value will update the PC when previous instrction is a branch instruction (signal ```$taken_br``` will triger this).  
 
-
+Final test example:  ```*passed = |cpu/xreg[10]>>5$value == (1+2+3+4+5+6+7+8+9);``` - testbench will monitor the value from ```/xreg[10]``` from RF . The name of the value from that register is ```$value```. ```>>5``` used to log more waveforms after the result is done , not to stop suddenly. When value will be equal with proper sum the simulation will stop.
+  
+## Day 5 - Pipelined RISC-V CPU
