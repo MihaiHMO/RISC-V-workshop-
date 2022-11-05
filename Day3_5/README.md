@@ -16,6 +16,36 @@ simple calc and count	| https://makerchip.com/sandbox/0PNf4hZrx/0vghEW0# |
 Validity	| https://makerchip.com/sandbox/0PNf4hZrx/0k5hkk5 |
 Mem and recall	| https://myth3.makerchip.com/sandbox/02kfkh0Mk/0oYhDD6 |
 
-## Hierarchy :
+## Day 3
+### Hierarchy :
 - used for reapeting a module  or library 
 - " Lexical re-enrtance" -  used to jump between diferent context  
+
+## Day 4 - Basic RISC-V microarchitecture
+Basic elements:
+- program counter - pointer into instruction memory , instructions that we need to next step 
+- Instruction memory 
+- Decoder - will interpret the instruction selected by PC ( with all elements intsr , register, immediate values) 
+- Registers (source, destination) , must be ast least 2 port read register file (because we need min 2 source reg), 1 write register fiel
+- ALU - performing the arithmetic 
+- Data memory for data ( for store and load instructions )
+
+Lab: https://raw.githubusercontent.com/stevehoover/RISC-V_MYTH_Workshop/ecba3769fff373ef6b8f66b3347e8940c859792d/tlv_lib/risc-v_shell_lib.tlv
+The starting code makerchip sandbox contains a std infrastructure for TLV with some macro definitions .  Some elements are "m4" - is a macro preprocesor use to define a asambler . So you can insert test programs. 
+ ``` *passed = *cyc_cnt > 40; ``` and ```   *failed = 1'b0;``` sued to setup the numbers of clocks and a pass message
+- there are some macros that are instantiating some elements (Instr mem, register file , data mem) :
+  - //m4+imem(@1)    // Args: (read stage)  --  the asm code is loaded here 
+  - //m4+rf(@1, @1)  // Args: (read stage, write stage) - if equal, no register bypass is required
+  - //m4+dmem(@4)    // Args: (read/write stage)
+Useful tips: 
+- if mouse is hovered over the diagram elements it willl so the expressions
+- in wave form diagram is a section with elements for visualization window 
+
+### PC:
+- Reset of the PC must be done based on previous "reset" of the previous instruction. if the previous instruction was a reset the current instruction should use 0, to include the first non reset instruction in the pipeline.
+The incrementation must be done with 4 , because of the instructions are 32 bit so we need 4 memory locations.
+- Fetch : we need to connect the IMem to the PC by ```$inem_rd_addr[M4_IMEN_INDEX_CNT-1:0]``` (wich is needs PC/4 values) , the data will come out from ```$inem_rd_data``` conencted to a Decoder input ```$instr[31:0]``` . The read from mem has also a n enable signal.
+  based on memory size PC range must be define.
+-  IRSBJU Decode Logic :
+
+ 
