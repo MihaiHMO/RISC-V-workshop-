@@ -41,18 +41,17 @@
       @0
          $reset = *reset;
          $start = >>1$reset && !$reset; 
-         $valid = $reset ? '0 : 
-                  $start ? '1 :
-                  >>3$valid;
+         
          
          $pc[31:0] = >>1$reset ? '0 :
                      >>3$valid_taken_br ? >>3$br_tgt_pc[31:0] :
-                     (>>3$pc[31:0] + 32'd4);
+                     >>1$inc_pc;
          
          // Instr mem array size and reset             
          $imem_rd_addr[10-1:0] = $pc[10+1:2];
          $imem_rd_en = $reset;
       @1
+         $inc_pc[31:0] = $pc + 32'd4; 
          // Instr Fetch 
          $instr[31:0] = $imem_rd_data[31:0];
          
@@ -114,8 +113,10 @@
          $rf_rd_index1[4:0] = $rs1[4:0];
          $rf_rd_index2[4:0] = $rs2[4:0];
          
-         $src1_value[31:0] = $rf_rd_data1;
-         $src2_value[31:0] = $rf_rd_data2;
+         $src1_value[31:0] = >>1$rf_wr_en && (>>1$rf_wr_index == $rf_rd_index1) 
+                                 ? >>1$result : $rf_rd_data1;
+         $src2_value[31:0] = >>1$rf_wr_en && (>>1$rf_wr_index == $rf_rd_index2) 
+                                 ? >>1$result : $rf_rd_data2;
          
          $br_tgt_pc[31:0] = $pc[31:0] + $imm[31:0] ;
          
@@ -125,7 +126,7 @@
                          $is_add ? $src1_value + $src2_value :
                          32'bx;
          // RF write
-         $rf_wr_en = ($rd == '0) ? '0 : ($rd_valid && $valid);
+         $rf_wr_en = $rd!=5'b0 && $rd_valid && $valid;
          $rf_wr_index[4:0] = $rd[4:0];
          $rf_wr_data[31:0] = $result; 
          
@@ -139,7 +140,7 @@
                      1'b0;
          
          $valid_taken_br = $valid && $taken_br;
-         
+         $valid = !>>1$taken_br || !>>2$taken_br;
          
          // Until instrs are implemented,
          // quiet down the warnings.
