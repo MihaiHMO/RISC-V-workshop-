@@ -40,11 +40,12 @@
    |cpu
       @0
          $reset = *reset;
-         $start = >>1$reset && !$reset; 
+         //$start = >>1$reset && !$reset; 
          
          
          $pc[31:0] = >>1$reset ? '0 :
                      >>3$valid_taken_br ? >>3$br_tgt_pc[31:0] :
+                     >>3$valid_load ? >>3$inc_pc :
                      >>1$inc_pc;
          
          // Instr mem array size and reset             
@@ -152,13 +153,38 @@
          
       @3
          // ALU
+         $sltiu_rslt = $src1_value < $imm;
+         $sltu_rslt = $src1_value > $src2_value ;
+         
          $result[31:0] = $is_addi ? $src1_value + $imm :
                          $is_add ? $src1_value + $src2_value :
+                         $is_sub ? $src1_value - $src2_value :
+                         $is_sll ? $src1_value << $src2_value[4:0] :
+                         $is_srl ? $src1_value >> $src2_value[4:0] :
+                         $is_sltu ? $sltu_rslt :
+                         $is_sltiu ? $sltu_rslt :
+                         $is_slt ? ($src1_value[31] == $src2_value[31]) ? $sltu_rslt : {31'b0, $src1_value[31]} :
+                         $is_slti ? ($src1_value[31] == $imm[31]) ? $sltiu_rslt : {31'b0, $src1_value[31]} : 
+                         $is_xor ? $src1_value ^ $src2_value :
+                         $is_sra ? { {32{$src1_value[31]}}, $src1_value} >> $imm[4:0] :
+                         $is_srai ? { {32{$src1_value[31]}}, $src1_value} >> $src2_value[4:0] :
+                         $is_or ? $src1_value | $src2_value :
+                         $is_and ? $src1_value & $src2_value :
+                         $is_xori ? $src1_value ^ $imm :
+                         $is_ori ? $src1_value | $imm :
+                         $is_andi ? $src1_value & $imm :
+                         $is_slli ? $src1_value << $imm[5:0] :
+                         $is_srli ? $src1_value >> $imm[5:0] :
+                         $is_lui ? {$imm[31:12], 12'b0} :
+                         $is_auipc ? $pc + $imm :
+                         $is_jal ? $pc + 4 :
+                         $is_jalr ? $pc + 4 :
                          32'bx;
+         
          // RF write
-         $rf_wr_en = $rd!=5'b0 && $rd_valid && $valid;
-         $rf_wr_index[4:0] = $rd[4:0];
-         $rf_wr_data[31:0] = $result; 
+         $rf_wr_en = ($rd!=5'b0 && $rd_valid && $valid) || >>2$valid_load;
+         $rf_wr_index[4:0] = >>2$valid_load ? >>2$rd[4:0] : $rd[4:0];
+         $rf_wr_data[31:0] = >>2$valid_load ? >>2$ld_data : $result; 
          
          // Branch + branch decode 
          $taken_br = $is_beq ? ($src1_value == $src2_value) :
@@ -170,7 +196,15 @@
                      1'b0;
          
          $valid_taken_br = $valid && $taken_br;
-         $valid = !>>1$taken_br || !>>2$taken_br;
+         $valid = !>>1$taken_br || !>>2$taken_br || !>>1$valid_load || !>>2$valid_load;
+         
+         // Load /store 
+         $valid_load = $valid && $is_load;
+         $result[31:0] = $is_load ? $src1_value + $imm :
+                         $is_store ? $src1_value + $imm :
+                         32'bx;
+         
+         
          
          // Until instrs are implemented,
          // quiet down the warnings.
