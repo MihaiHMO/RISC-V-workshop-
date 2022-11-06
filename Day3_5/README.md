@@ -87,3 +87,80 @@ The branch target PC value will update the PC when previous instrction is a bran
 Final test example:  ```*passed = |cpu/xreg[10]>>5$value == (1+2+3+4+5+6+7+8+9);``` - testbench will monitor the value from ```/xreg[10]``` from RF . The name of the value from that register is ```$value```. ```>>5``` used to log more waveforms after the result is done , not to stop suddenly. When value will be equal with proper sum the simulation will stop.
   
 ## Day 5 - Pipelined RISC-V CPU
+TLV is making the soultion easier compare to verilog.
+Uasually this is needed when we want to speed up the logic , so we split up in more stages, so we run less logic in one cycle.
+To understandthe pipelining is usefull to look at the design in a waterfall represenation  . 
+
+![](Day5/5-1.PNG) s 
+
+We need to understand how each intruction logic is seeing the previuous stage logic . the top logic is the logic seen by the "first" instr  and the "second" instr is seeing bottom logic. The loopback connections between stages are represented here as with separate dobled logic that feeds output of the "first" instruction to the "second" instruction.
+The structure can generate some dependencies problems, ex: the branch target needed is know 2 cycles later , RF Write data is know 1 cycle later for next RF Read. This are called "hazards".
+
+![](Day5/5-2.PNG)
+
+A solution to this problem is to compute each step evrey x clock cycles. For this a "valid" signal is need with "x" cyles cadance - done before with a conter - and can be coded with the ```>>x``` .
+A good practice is to initialize teh cpu so a ```$start``` signal is required , imediate cyles after reset deasserts. This will generate also the first ```$valid```.  
+```
+$valid = $reset ? '0 : 
+         $start ? '1 :
+         >>3$valid;
+```
+![](Day5/5-3.PNG)
+
+Next we need to manage the invalid cyles .Not writing RF and PC on invalid cycles.
+1. Avoid writing RF for invalid instructions. 
+``` 
+$rf_wr_en = ($rd == '0) ? '0 : ($rd_valid && $valid);
+```
+2. Avoid redirecting PC for invalid (branch) instructions. Introduce: ```$valid_taken_br = $valid && $taken_br;``` and use it in PC mux.
+```
+$pc[31:0] = >>1$reset ? '0 :
+            >>3$valid_taken_br ? >>3$br_tgt_pc[31:0] :
+           (>>3$pc[31:0] + 32'd4);
+```
+3. Update inter-instruction dependecny alligments (>>3)
+
+### Solutions to Pipeline Hazards
+We need solutions to run back to back instructions and get etter perfomance.
+First the register file depences - issue exampled is that we do not have time write in the previous intruction and read in the same inrtuction (read after write hazard).
+IN the example is possible to bypass the ALU result from previous intr to curent intsr ALU input.  
+
+![](Day5/5-4.PNG) slide Reg file Bypasss 2x
+
+1. RF read uses RF as written 2 instructions ago (already correct).
+2. Update expressions for $srcX_value to select previous $result if it was written
+to RF (write enable for RF) and if previous $rd == $rsX.
+```
+$src1_value[31:0] = (>>1$rf_wr_en && (>>1$rd == $rs1)) ? >>1$result : $rf_rd_data1;
+$src2_value[31:0] = (>>1$rf_wr_en && (>>1$rd == $rs2)) ? >>1$result : $rf_rd_data2;
+```
+(Should have no effect yet)
+
+Branch target path hazard :
+
+![](Day5/5-5.PNG)
+
+We need to addrase the 2 cylce paths and to "loose" them. 
+
+1. Replace @1 $valid assignment with @3 $valid assignment based on the
+non-existence of a valid $taken_br’s in previous two instrutions.
+```
+@3
+   $valid = !>>1$taken_br || !>>2$taken_br;
+```
+2. Increment PC every cycle (not every 3 cycles)
+```
+$pc[31:0] = >>1$reset ? '0 :
+                     >>3$valid_taken_br ? >>3$br_tgt_pc[31:0] :
+                     >>1$inc_pc;
+```
+3. (PC redirect for branches is already 3-cycle. No change.)
+
+### Load/ store instructions
+We use the load /store instr just for word data.
+
+
+# Acknowledgements
+- [Steve Hoover](https://github.com/stevehoover/RISC-V_MYTH_Workshop)
+- [Kunal Gosh](https://github.com/kunalg123)
+- [VSD-IAT](https://vsdiat.com/)
