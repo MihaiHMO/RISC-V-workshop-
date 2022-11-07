@@ -72,14 +72,13 @@ Concatenation in TLV: ``{ {21{$instr[31]}}, $instr[30:20]}``` - final vector is 
 ![](Day4/4-5.PNG)
 
 ### Register file and ALU:
-It is a macro ready done, capable for 2-read and 1-write.
+Register file is implemented as a macro ready done, capable for 2-read and 1-write. 
 
 ![](Day4/4-6.PNG) 
 
 - First we need to hook the read signals : ```rf_rd_enablex``` to ```rsx_valid``` , to enable the read and ```rsx``` fields to RF index ```rf_rd_index```. 
-- connect the read values to ALU , implemented ```addi``` and ```add```, and connect the output of the ALU to RF write signals
+- connect the read values to ALU , implement the ALU intruction set, and connect the output of the ALU to RF write signals
 - the read usually is done for values written a previous step . 
-insert array details!!! and slide 22.
 
 ```
 $result[31:0] = $is_addi ? $src1_value + $imm :
@@ -195,9 +194,9 @@ $valid_load = $valid && $is_load;
 2. Select $inc_pc from 3 instructions ago for load redirect
 ```
 $pc[31:0] = >>1$reset ? '0 :
-                     >>3$valid_taken_br ? >>3$br_tgt_pc[31:0] :
-                     >>3$valid_load ? >>3$inc_pc :
-                     >>1$inc_pc;
+             >>3$valid_taken_br ? >>3$br_tgt_pc[31:0] :
+             >>3$valid_load ? >>3$inc_pc :
+             >>1$inc_pc;
 ```
 
 Load data
@@ -216,7 +215,9 @@ $rf_wr_index[4:0] = >>2$valid_load ? >>2$rd[4:0] : $rd[4:0];
 $rf_wr_data[31:0] = >>2$valid_load ? >>2$ld_data : $result; 
  ```
 4. Add the Data Memory 
-![](Day5/5-6.PNG)
+
+![](Day5/5-6.png)
+
 ```
 @3
 $rf_wr_data[31:0] = >>2$valid_load ? >>2$dmem_rd_data : $result; 
@@ -229,17 +230,18 @@ $dmem_rd_en = $valid_load ;
 
 ```
 ### Jumps - Uncoditional branches 
-JAL: Jumo to PC +IMM
-JALR : Jumps to SRC1 + IMM
+
+JAL: Jump to PC +IMM
+JALR : Jump to SRC1 + IMM
 
 1. Define $is_jump (JAL or JALR), and, like $taken_br, create invalid cycles.
 ``` 
-       @3
-         $valid = !>>1$valid_taken_br || !>>2$valid_taken_br || !>>1$valid_load || !>>2$valid_load || !>>1$valid_jump || !>>2$valid_jump;
-         
-         // Jump decode
-         $is_jump = $is_jal || $is_jalr ;
-         $valid_jump = $valid && $is_jump;
+@3
+  $valid = !>>1$valid_taken_br || !>>2$valid_taken_br || !>>1$valid_load || !>>2$valid_load || !>>1$valid_jump || !>>2$valid_jump;
+
+  // Jump decode
+  $is_jump = $is_jal || $is_jalr ;
+  $valid_jump = $valid && $is_jump;
 ```
 3. Compute $jalr_tgt_pc (SRC1 + IMM).
 ```
@@ -247,12 +249,12 @@ JALR : Jumps to SRC1 + IMM
 ```
 4. Select correct $pc for JAL (>>3$br_tgt_pc) and JALR (>>3$jalr_tgt_pc)
 ```
-         $pc[31:0] = >>1$reset ? '0 :
-                     >>3$valid_taken_br ? >>3$br_tgt_pc[31:0] :
-                     >>3$valid_load ? >>3$inc_pc :
-                     >>3$valid_jump && >>3$is_jal ?  >>3$br_tgt_pc :
-                     >>3$valid_jump && >>3$is_jalr ?  >>3$jalr_tgt_pc :
-                     >>1$inc_pc;
+$pc[31:0] = >>1$reset ? '0 :
+            >>3$valid_taken_br ? >>3$br_tgt_pc[31:0] :
+            >>3$valid_load ? >>3$inc_pc :
+            >>3$valid_jump && >>3$is_jal ?  >>3$br_tgt_pc :
+            >>3$valid_jump && >>3$is_jalr ?  >>3$jalr_tgt_pc :
+            >>1$inc_pc;
 ```
 
 
