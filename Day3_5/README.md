@@ -76,6 +76,11 @@ Register file is implemented as a macro ready done, capable for 2-read and 1-wri
 
 ![](Day4/4-6.PNG) 
 
+The array contains a box for each value/entry with an index .
+For write : if the ```$wr_index``` , during ```$wr_en``` is equal to the "entry number"  , selected data from ```$wr_data[]``` is the new ```$value captured inside the flipflops
+For read : based on the ```$rd_index[]```, while ```$wr_en```, the mux will select the index /entry number that will be routed at the output ```$rd_data```.
+Because ethe cpus usually read the values written on a previous instruction the concept is split in 2 clock stages.
+
 - First we need to hook the read signals : ```rf_rd_enablex``` to ```rsx_valid``` , to enable the read and ```rsx``` fields to RF index ```rf_rd_index```. 
 - connect the read values to ALU , implement the ALU intruction set, and connect the output of the ALU to RF write signals
 - the read usually is done for values written a previous step . 
