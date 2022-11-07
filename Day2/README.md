@@ -5,15 +5,14 @@ Repository for workshop day 3-5 : https://github.com/stevehoover/RISC-V_MYTH_Wor
 
 ## Table of Contents
 
-  * [Day 1 - Introduction to RISC-V ISA and GNU compiler toolchain](# Day 1 - Introduction to RISC-V ISA and GNU compiler toolchain
-    + [xxx](#)
-  * [Day 2 - ABI and basic verification flow](# ## Day_2_-_ABI_and_basic_verification_flow
-)
+  + [Day 1 - Introduction to RISC-V ISA and GNU compiler toolchain](#day_1_-_introduction_to_risc-v_isa_and_gnu_compiler_toolchain) 
+  + [Day 2 - ABI and basic verification flow](#day_2_-_abi_and_basic_verification_flow)
   
 ## Day 1 - Introduction to RISC-V ISA and GNU compiler toolchain
 
 Building the enviromernt on the PC:
 https://github.com/kunalg123/riscv_workshop_collaterals/blob/master/run.sh
+
 ```
 sudo apt-get install git vim -y
 sudo apt-get install autoconf automake autotools-dev curl libmpc-dev         libmpfr-dev libgmp-dev gawk build-essential bison flex texinfo     gperf libtool patchutils bc zlib1g-dev git libexpat1-dev gtkwave -y
@@ -21,9 +20,8 @@ cd
 pwd=$PWD
 mkdir riscv_toolchain
 ```
-
-
 ![](Day1/1-1.jpg)
+
 https://www.microcontrollertips.com/compilers-translators-interpreters-assemblers-faq/
 
 There are several type of instruction:
@@ -39,9 +37,10 @@ Other elements of instruction set is :
 All the instructions in risc-v are 32 bit (64bit is the register size for RV64)
 
 LAB:
-
+```
 riscv64-unknown-elf-gcc -O1 -mabi=lp64 -march=rv64i -o sum1ton.o sum1ton.c - used for compilation 
 riscv64-unknown-elf-objdump -d sum1ton.o -used for disassemble
+```
 -d disassemble
 -Ofast - we see less intructions in main
 -O1 
