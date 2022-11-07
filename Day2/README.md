@@ -123,4 +123,15 @@ chmod -x testbench.vvp
 vvp -N testbench.vvp
 ```
 
+# Acknowledgements
+- [Steve Hoover](https://github.com/stevehoover/RISC-V_MYTH_Workshop)
+- [Kunal Ghosh](https://github.com/kunalg123)
+- [VSD-IAT](https://vsdiat.com/)
 
+# Useful Links:
+- https://github.com/os-fpga/Virtual-FPGA-Lab
+- https://github.com/shariethernet/RPHAX
+- https://github.com/TL-X-org
+- https://www.redwoodeda.com/
+- https://www.tl-x.org/
+- https://www.youtube.com/watch?time_continue=153&v=EeHK3Jbgv2s&feature=emb_logo
