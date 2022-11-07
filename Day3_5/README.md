@@ -184,7 +184,20 @@ $pc[31:0] = >>1$reset ? '0 :
 3. (PC redirect for branches is already 3-cycle. No change.)
 
 ### Load/ store instructions
-We use the load /store instr just for word data.
+
+ |Load(LW, LH, LB, LHU, LBU) |Store (SW, SH, SB)|
+ |--- |--- |
+ |LOAD rd, imm(rs1)| STORE rs2, imm(rs1) |
+ |rd <=DMem[addr] | DMem[addr]<==rs2 |
+  
+ where addr<=rs1+imm
+ 
+- we will support the load /store instr just for word data.
+- Load data is stored in the ```rd``` register  , and the address for the load is specified relative to a register ```rs1``` with ```imm``` ofset.
+  In SW, ```rs1``` is can be pointer to amn object and ```imm``` is an element of the object 
+- Stores in the memory the value of ```rs2``` at ```rs1 + imm``` address
+
+![](Day5/5-7.png)
 
 1. Clear $valid in the “shadow” of a load (like branch).
 ```
