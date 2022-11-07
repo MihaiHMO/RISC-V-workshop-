@@ -15,7 +15,8 @@ Calc and counetr pipiline	| https://makerchip.com/sandbox/0PNf4hZrx/0xGhLJr |
 simple calc and count	| https://makerchip.com/sandbox/0PNf4hZrx/0vghEW0# |
 Validity	| https://makerchip.com/sandbox/0PNf4hZrx/0k5hkk5 |
 Mem and recall	| https://myth3.makerchip.com/sandbox/02kfkh0Mk/0oYhDD6 |
-RISC-V CPU | https://makerchip.com/sandbox?code_url=https:%2F%2Fraw.githubusercontent.com%2Fstevehoover%2FRISC-V_MYTH_Workshop%2Fmaster%2Frisc-v_shell.tlv# |
+RISC-V CPU | https://myth3.makerchip.com/sandbox/02kfkh0Mk/0LghkN1# |
+
 
 ## Day 3
 ### Hierarchy :
@@ -211,6 +212,31 @@ It is a macro ready done, capable for 2-read and 1-write.
 - connect the read values to ALU , implemented ```addi``` and ```add```, and connect the output of the ALU to RF write signals
 - the read usually is done for values written a previous step . 
 insert array details!!! and slide 22.
+```
+$result[31:0] = $is_addi ? $src1_value + $imm :
+                         $is_add ? $src1_value + $src2_value :
+                         $is_sub ? $src1_value - $src2_value :
+                         $is_sll ? $src1_value << $src2_value[4:0] :
+                         $is_srl ? $src1_value >> $src2_value[4:0] :
+                         $is_sltu ? $sltu_rslt :
+                         $is_sltiu ? $sltu_rslt :
+                         $is_slt ? ($src1_value[31] == $src2_value[31]) ? $sltu_rslt : {31'b0, $src1_value[31]} :
+                         $is_slti ? ($src1_value[31] == $imm[31]) ? $sltiu_rslt : {31'b0, $src1_value[31]} : 
+                         $is_xor ? $src1_value ^ $src2_value :
+                         $is_sra ? { {32{$src1_value[31]}}, $src1_value} >> $imm[4:0] :
+                         $is_srai ? { {32{$src1_value[31]}}, $src1_value} >> $src2_value[4:0] :
+                         $is_or ? $src1_value | $src2_value :
+                         $is_and ? $src1_value & $src2_value :
+                         $is_xori ? $src1_value ^ $imm :
+                         $is_ori ? $src1_value | $imm :
+                         $is_andi ? $src1_value & $imm :
+                         $is_slli ? $src1_value << $imm[5:0] :
+                         $is_srli ? $src1_value >> $imm[5:0] :
+                         $is_lui ? {$imm[31:12], 12'b0} :
+                         $is_auipc ? $pc + $imm :
+                         ($is_load || $is_s_instr) ? $src1_value + $imm :  
+                         32'bx;
+```
 
 ### Branches
 - Compute when a branch (instructions "bxxx") is needed, and where to branch ( PC of the branch and the immediate value of the instr). 
@@ -334,10 +360,10 @@ Branch target path hazard :
 
 ![](Day5/5-5.PNG)
 
-We need to addrase the 2 cylce paths and to "loose" them. 
+We need to address the 2 cylce paths and to "loose" them. 
 
 1. Replace @1 $valid assignment with @3 $valid assignment based on the
-non-existence of a valid $taken_br’s in previous two instrutions.
+non-existence of a valid $taken_br’s in previous two instructions.
 ```
 @3
    $valid = !>>1$taken_br || !>>2$taken_br;
@@ -381,6 +407,46 @@ $rf_wr_en = ($rd!=5'b0 && $rd_valid && $valid) || >>2$valid_load;
 $rf_wr_index[4:0] = >>2$valid_load ? >>2$rd[4:0] : $rd[4:0];
 $rf_wr_data[31:0] = >>2$valid_load ? >>2$ld_data : $result; 
  ```
+4. Add the Data Memory 
+![](Day5/5-6.PNG)
+```
+@3
+$rf_wr_data[31:0] = >>2$valid_load ? >>2$dmem_rd_data : $result; 
+
+@4
+$dmem_wr_en = $valid && $is_s_instr;
+$dmem_addr[3:0] =  $result[5:2];
+$dmem_wr_data[31:0] = $src2_value;
+$dmem_rd_en = $valid_load ;
+
+```
+### Jumps - Uncoditional branches 
+JAL: Jumo to PC +IMM
+JALR : Jumps to SRC1 + IMM
+
+1. Define $is_jump (JAL or JALR), and, like $taken_br, create invalid cycles.
+``` 
+       @3
+         $valid = !>>1$valid_taken_br || !>>2$valid_taken_br || !>>1$valid_load || !>>2$valid_load || !>>1$valid_jump || !>>2$valid_jump;
+         
+         // Jump decode
+         $is_jump = $is_jal || $is_jalr ;
+         $valid_jump = $valid && $is_jump;
+```
+3. Compute $jalr_tgt_pc (SRC1 + IMM).
+```
+         $jalr_tgt_pc[31:0] = $src1_value + $imm ; 
+```
+4. Select correct $pc for JAL (>>3$br_tgt_pc) and JALR (>>3$jalr_tgt_pc)
+```
+         $pc[31:0] = >>1$reset ? '0 :
+                     >>3$valid_taken_br ? >>3$br_tgt_pc[31:0] :
+                     >>3$valid_load ? >>3$inc_pc :
+                     >>3$valid_jump && >>3$is_jal ?  >>3$br_tgt_pc :
+                     >>3$valid_jump && >>3$is_jalr ?  >>3$jalr_tgt_pc :
+                     >>1$inc_pc;
+```
+
 
 # Acknowledgements
 - [Steve Hoover](https://github.com/stevehoover/RISC-V_MYTH_Workshop)
