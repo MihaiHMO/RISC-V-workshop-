@@ -277,7 +277,9 @@ $pc[31:0] = >>1$reset ? '0 :
             >>3$valid_jump && >>3$is_jalr ?  >>3$jalr_tgt_pc :
             >>1$inc_pc;
 ```
+Final result:
 
+![](Day5/5-8.png)
 
 # Acknowledgements
 - [Steve Hoover](https://github.com/stevehoover/RISC-V_MYTH_Workshop)
