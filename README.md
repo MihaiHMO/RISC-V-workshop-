@@ -4,7 +4,7 @@ The workshop is structured in 2 section:
 
 [1. Day 1-2 - Theory about RISV](/Day2/README.md)
 
-[2. Day 3-5 - Implementation of RISCV RV32I in TLV](/Day3-5/README.md)
+[2. Day 3-5 - Implementation of RISCV RV32I in TLV](/Day3_5/README.md)
 
 For students of "Microprocessor for You in Thirty Hours" Workshop, offered by for VLSI System Design (VSD) and Redwood EDA, find here accompanying live info and links.
 
